@@ -1,0 +1,83 @@
+# file .gitignore là "bảo vệ" Repository khỏi các file không cần thiết, lớn, hoặc nhạy cảm.
+
+# Default ignored files
+# Thư mục tạm thời của IDE, thường liên quan đến các thay đổi chưa commit.
+/shelf/
+# File lưu trữ cấu hình không gian làm việc của IDE (ví dụ: IntelliJ)
+/.idea/workspace.xml
+# Thư mục chứa các file log/lịch sử yêu cầu HTTP của IDE.
+/httpRequests/
+
+# --- Cấu hình Dự án & Build --
+# target là nơi chứa mọi bản build, các file .class đã biên dịch và file JAR/WAR. BỎ QUA nó là BẮT BUỘC.
+/target/
+
+# --- Cấu hình IDE (IDE Configuration) ---
+### IntelliJ IDEA ###
+# Thư mục chứa cấu hình dự án của IntelliJ IDEA (cấu hình môi trường, module, v.v.).
+.idea/
+*.iml
+*.iws
+
+# Các file tạm thời
+*.iml
+*.log
+
+### Maven ###
+# File tạm thời liên quan đến thời gian build của Maven.
+.mvn/timing.properties
+# Cấu hình của Maven Wrapper (file này thường CẦN được commit, nhưng trong nhiều mẫu .gitignore nó bị bỏ qua
+# để tránh conflict khi thay đổi phiên bản wrapper). Tốt nhất là **KHÔNG** nên bỏ qua trừ khi có lý do cụ thể.
+.mvn/wrapper/maven-wrapper.properties
+# File JAR của Maven Wrapper (thường CẦN được commit).
+.mvn/wrapper/maven-wrapper.jar
+
+
+### VS Code ###
+.vscode/
+
+### Eclipse ###
+.project
+.classpath
+.settings/
+
+# --- File Tạm thời & Log ---
+*.tmp
+# Các file sao lưu.
+*.bak
+# Các file nhật ký (log) nói chung (thường được lưu trong thư mục logs/ nhưng thêm mục này để bao quát hơn).
+*.log
+# Thư mục chứa tất cả các file log khi ứng dụng chạy.
+logs/
+
+# --- Hệ điều hành (OS-level) ---
+# macOS
+# File lưu trữ tùy chỉnh thư mục của macOS.
+.DS_Store
+
+# Windows
+# File cache hình ảnh thu nhỏ của Windows.
+Thumbs.db
+
+# --- Môi trường & Bí mật (Environment / Secrets) ---
+# File cấu hình biến môi trường cục bộ (local environment variables).
+.env
+# Các file môi trường khác.
+*.env
+# Các file môi trường theo profile (ví dụ: .env.local).
+.env.*
+# File chứa bí mật/khóa nhạy cảm.
+.secret
+# Các file bí mật khác.
+*.secret
+
+# --- Cấu hình Ứng dụng Spring Boot (Spring Boot Profiles) ---
+# Cấu hình cục bộ/phát triển (local/dev) không bao giờ nên được commit vì chúng chứa các thông tin nhạy cảm (DB, API Keys, v.v.)
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+
+# Ngăn chặn việc commit nhầm các profile cấu hình chứa thông tin nhạy cảm.
+application-*.secret.properties
+application-*.secret.yml
