@@ -1,8 +1,9 @@
-package com.example.authdemo.user;
+package com.example.authdemo.user.service.controller;
 
-import com.example.authdemo.user.dto.AuthResponse;
-import com.example.authdemo.user.dto.LoginRequest;
-import com.example.authdemo.user.dto.RegisterRequest;
+import com.example.authdemo.user.service.dto.AuthResponse;
+import com.example.authdemo.user.service.dto.LoginRequest;
+import com.example.authdemo.user.service.dto.RegisterRequest;
+import com.example.authdemo.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

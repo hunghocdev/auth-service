@@ -4,7 +4,7 @@
 // @UniqueConstraint → thuộc database layer, không phải validation logic.
 
 
-package com.example.authdemo.user;
+package com.example.authdemo.user.service.entity;
 
 import jakarta.persistence.*;   // Import các annotation của JPA để làm việc với database.
 

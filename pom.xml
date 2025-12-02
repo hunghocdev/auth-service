@@ -31,6 +31,25 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
+        <!-- JWT -->
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+
+        <!-- optional: đọc PEM keys (if needed) -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.70</version>
+        </dependency>
+
+        <!-- password encoder -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
         <!-- Thêm thư viện Spring Security Crypto vào dự án để dùng BCryptPasswordEncoder mã hóa mật khẩu. -->
         <dependency>
             <groupId>org.springframework.security</groupId>

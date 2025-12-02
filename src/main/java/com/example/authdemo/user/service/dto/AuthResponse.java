@@ -1,4 +1,4 @@
-package com.example.authdemo.user.dto;
+package com.example.authdemo.user.service.dto;
 //success: boolean -> thao tác thành công hay thất bại
 //message: String -> thông báo gửi lại cho client
 

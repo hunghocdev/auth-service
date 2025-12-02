@@ -1,7 +1,9 @@
-package com.example.authdemo.user;
+package com.example.authdemo.user.service;
 
-import com.example.authdemo.user.dto.LoginRequest;      // Kiểm tra login
-import com.example.authdemo.user.dto.RegisterRequest;   // Kiểm tra đăng nhập
+import com.example.authdemo.user.service.entity.User;
+import com.example.authdemo.user.service.dto.LoginRequest;      // Kiểm tra login
+import com.example.authdemo.user.service.dto.RegisterRequest;   // Kiểm tra đăng nhập
+import com.example.authdemo.user.service.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
