@@ -1,9 +1,7 @@
-package com.example.authdemo.user.service.controller;
+package com.example.authdemo.user;
 
-import com.example.authdemo.user.service.dto.AuthResponse;
-import com.example.authdemo.user.service.dto.LoginRequest;
-import com.example.authdemo.user.service.dto.RegisterRequest;
-import com.example.authdemo.user.service.UserService;
+import com.example.authdemo.dto.AuthResponse;
+import com.example.authdemo.dto.RegisterRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,12 +28,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse(false, "Server error"));
         }
     }
-
-    @PostMapping("/login")      // API đăng nhập tài khoản
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest req) {
-        boolean ok = userService.login(req);    // tìm user trong DB / so sánh password hash
-
-        if (ok) return ResponseEntity.ok(new AuthResponse(true, "Login success"));  // nếu ok tra ve la true
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponse(false, "Invalid credentials"));     // nguoc lại trả về  fail
-    }
+    // Login endpoint is implemented in AuthController to support JWTs (access + refresh).
+    // Keep this controller focused on user registration and other non-auth-token endpoints.
 }

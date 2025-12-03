@@ -1,9 +1,7 @@
-package com.example.authdemo.user.service;
+package com.example.authdemo.user;
 
-import com.example.authdemo.user.service.entity.User;
-import com.example.authdemo.user.service.dto.LoginRequest;      // Kiểm tra login
-import com.example.authdemo.user.service.dto.RegisterRequest;   // Kiểm tra đăng nhập
-import com.example.authdemo.user.service.repository.UserRepository;
+import com.example.authdemo.dto.LoginRequest;      // Kiểm tra login
+import com.example.authdemo.dto.RegisterRequest;   // Kiểm tra đăng nhập
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,10 +46,12 @@ public class UserService {
         if (opt.isEmpty()) return false;    // Trả về false đăng nhập thất bại
 
         User user = opt.get();      // lấy thông tin của user đăng nhập
-        // verify password (BCrypt checks salt embedded in stored hash)
-        // user.getPasswordHash(): Mật khẩu đã hash được lưu trong DB
-        // req.getPassword(): là mật khẩu plaintext mà người dùng vừa nhập
-        // đem 2 cái matches với nhau nếu trùng passwordHash thì trả về true và ngược lại
-        return passwordEncoder.matches(req.getPassword(), user.getPasswordHash());
+        // verify password via the entity method (BCrypt checks salt embedded in stored hash)
+        // Keep the comparison inside the entity so the password hash is not widely exposed
+        return user.verifyPassword(req.getPassword(), passwordEncoder);
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }

@@ -1,20 +1,19 @@
-package com.example.authdemo.user.service.dto;
+package com.example.authdemo.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
 public class LoginRequest {
-    @NotBlank
+    @NotBlank(message = "Vui lòng nhập username")
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "Vui lòng nhập mật khẩu")
     private String password;
 
     public LoginRequest() {}
 
-    // getters & setters
+    // Getters & Setters...
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
-
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 }

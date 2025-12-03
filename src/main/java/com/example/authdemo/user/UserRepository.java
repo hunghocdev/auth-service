@@ -4,9 +4,8 @@
     Các method như findByUsername hoặc existsByEmail được Spring tự tạo SQL.
     Repository không chứa logic xử lý, chỉ phục vụ truy vấn DB.*/
 
-package com.example.authdemo.user.service.repository;
+package com.example.authdemo.user;
 
-import com.example.authdemo.user.service.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

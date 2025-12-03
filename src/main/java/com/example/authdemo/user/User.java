@@ -4,16 +4,18 @@
 // @UniqueConstraint → thuộc database layer, không phải validation logic.
 
 
-package com.example.authdemo.user.service.entity;
+package com.example.authdemo.user;
 
 import jakarta.persistence.*;   // Import các annotation của JPA để làm việc với database.
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 // ======Khai báo Entity và cấu hình Table========
 @Entity     //Báo với JPA: Class này là một bảng trong database.
 @Table(name = "users", uniqueConstraints = {          // Xác định tên bảng là users
-                @UniqueConstraint(columnNames = "username"),    //username và email không được trùng nhau
-                @UniqueConstraint(columnNames = "email")
-        })
+        @UniqueConstraint(columnNames = "username"),    //username và email không được trùng nhau
+        @UniqueConstraint(columnNames = "email")
+})
 
 //========Primary key===========
 //==========  DTO ==========
@@ -28,6 +30,7 @@ public class User {
     @Column(nullable = false, length = 100)
     private String email;
 
+    @JsonIgnore // Ensure the password hash is never serialized to JSON
     @Column(name = "password_hash", nullable = false, length = 255)     //tên cột trong DB là password_hash
     private String passwordHash;
 
@@ -41,13 +44,16 @@ public class User {
     }
 
     //===================getters và setters=============
-    //Không có password hash ở trạng thái public
-    protected String getPasswordHash() {
-        return passwordHash;
-    }
+    // provide a domain method to verify instead
+    // No public getter or setter for passwordHash to avoid accidental exposure.
 
-    // setter vẫn private hoặc protected
-    protected void setPasswordHash(String passwordHash) {
+    // Domain method to verify the plaintext password against the stored hash.
+    // Keeps verification logic inside the entity; prevents accidental exposure of the hash.
+    public boolean verifyPassword(String rawPassword, PasswordEncoder passwordEncoder) {
+        if (rawPassword == null || passwordHash == null) return false;
+        return passwordEncoder.matches(rawPassword, this.passwordHash);
+    }
+    public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
     public String getEmail() {
