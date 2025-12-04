@@ -1,112 +1,117 @@
-# 🔐 Spring Boot JWT Authentication Demo
-
-Dự án mẫu triển khai hệ thống xác thực (Authentication) sử dụng **Spring Boot 3** và **JWT (JSON Web Token)** với cơ chế Access Token & Refresh Token.
-
-## 🚀 Tính năng chính
-- **Đăng ký (Register):** Tạo tài khoản mới, mã hóa mật khẩu với BCrypt.
-- **Đăng nhập (Login):** Cấp Access Token (ngắn hạn) và Refresh Token (dài hạn).
-- **Refresh Token Rotation:** Cơ chế đổi Refresh Token cũ lấy mới để tăng cường bảo mật.
-- **RSA Encryption:** Sử dụng cặp khóa RSA (Public/Private) để ký và xác thực JWT.
-- **Database:** Lưu trữ User và Refresh Token Hash trong MySQL.
-
-## 🛠️ Công nghệ sử dụng
-- Java 17
-- Spring Boot 3.4
-- Spring Security
-- Spring Data JPA
-- MySQL
-- JWT (Java-JWT Library)
-
-## ⚙️ Cài đặt và Chạy ứng dụng
-
-### 1. Yêu cầu (Prerequisites)
-- JDK 17+
-- Maven
-- MySQL Server
-- OpenSSL (hoặc Git Bash để tạo key)
-
-### 2. Cấu hình Database
-Tạo database trống trong MySQL:
-```sql
-CREATE DATABASE authdemo_db;
-```
-Cập nhật file `src/main/resources/application.properties` (nếu cần):
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/authdemo_db
-spring.datasource.username=<YOUR_DB_USERNAME>
-spring.datasource.password=<YOUR_DB_PASSWORD>
-```
-
-### 3. Tạo RSA Keys (Quan trọng ⚠️)
-Vì lý do bảo mật, các khóa bí mật không được đưa lên GitHub. Bạn cần tự tạo chúng:
-
-1. Tạo thư mục `secrets` tại thư mục gốc của dự án.
-2. Mở Terminal tại thư mục `secrets` và chạy lệnh:
-
-```bash
-# Tạo Private Key
-openssl genpkey -algorithm RSA -out jwt_private.pem -pkeyopt rsa_keygen_bits:2048
-
-# Tạo Public Key từ Private Key
-openssl rsa -pubout -in jwt_private.pem -out jwt_public.pem
-```
-
-Cấu trúc thư mục sau khi tạo sẽ như sau:
-```
-authdemo/
-├── src/
-├── target/
-├── secrets/          <-- Thư mục này (chứa .pem) bị git ignore
-│   ├── jwt_private.pem
-│   └── jwt_public.pem
-├── pom.xml
-└── ...
-```
-
-### 4. Chạy ứng dụng
-```bash
-mvn spring-boot:run
-```
-Server sẽ khởi động tại: `http://localhost:8080`
+# 🔐 Spring Boot JWT Authentication Demo (RS256 & Token Rotation)
+Dự án triển khai một hệ thống **Xác thực (Authentication)** an toàn và hiện đại sử dụng **Spring Boot 3** và **JSON Web Tokens (JWT)**. Hệ thống được thiết kế theo kiến trúc **Feature-based Packaging** để tối ưu hóa khả năng bảo trì và mở rộng, đồng thời tích hợp các cơ chế bảo mật nâng cao như **ký token bằng RSA (RS256)** và **Token Rotation**.
 
 ---
+## 🚀 Tính Năng Nổi Bật
+* **Modular Architecture:** Tổ chức mã nguồn rõ ràng theo tính năng chính (**auth**, **user**, **token**), giúp dễ dàng quản lý và mở rộng.
+* **RSA Security (RS256):** Sử dụng thuật toán bất đối xứng **RSA (RS256)** để ký và xác thực token, tăng cường bảo mật so với các thuật toán đối xứng (HMAC).
+* **Token Rotation:** Cơ chế **Refresh Token** an toàn, giúp tự động cấp lại **Access Token** mới và **thu hồi token cũ** ngay sau khi sử dụng (One-Time-Use Refresh Tokens), giảm thiểu rủi ro bị đánh cắp token.
+* **User Management:** Các API cơ bản để quản lý thông tin và cấu hình người dùng.
+* **Database Storage:** Lưu trữ trạng thái người dùng (**User**) và trạng thái **Refresh Token** trong cơ sở dữ liệu **MySQL** thông qua **Spring Data JPA**.
+---
+## 🛠️ Tech Stack
 
-## 📡 API Documentation
+| Thành phần | Phiên bản/Công nghệ | Mục đích |
+| :--- | :--- | :--- |
+| **Core** | Java 17, Spring Boot 3.2+ | Nền tảng phát triển ứng dụng Microservice/REST API. |
+| **Security** | Spring Security 6, Java-JWT (Auth0) | Quản lý xác thực, ủy quyền và xử lý JWT. |
+| **Data** | MySQL, Spring Data JPA | Lưu trữ dữ liệu và thao tác với Database. |
+| **Build Tool** | Maven | Quản lý dependencies và build project. |
+| **Tooling** | OpenSSL | Khởi tạo cặp khóa RSA. |
 
-### 1. Đăng ký (Register)
-- **Endpoint:** `POST /api/auth/register`
-- **Body:**
-```json
+---
+## ⚙️ Cài Đặt & Khởi Chạy
+
+### 1. Yêu Cầu Tiên Quyết
+
+* **JDK 17** hoặc mới hơn.
+* **Maven** (3.6+).
+* **MySQL Server** đang hoạt động.
+
+### 2. Cấu Hình Database
+
+Tạo Database và cập nhật thông tin kết nối trong file `src/main/resources/application.properties` (hoặc `application.yml`):
+
+sql
+CREATE DATABASE authdemo_db;
+
+ **Lưu ý:** Cập nhật thông tin spring.datasource.url, spring.datasource.username, và spring.datasource.password trong file cấu hình.
+
+### 3. Trích xuất Public Key từ Private Key
+openssl rsa -pubout -in jwt_private.pem -out jwt_public.pem
+
+### Quay lại thư mục gốc
+cd ..
+**⚠️ Bảo mật:** Thư mục secrets/ và các file .pem đã được cấu hình trong .gitignore và KHÔNG được commit lên Version Control (Git).
+
+## 4. Khởi Chạy Ứng Dụng
+Sử dụng Maven để chạy ứng dụng:Bashmvn spring-boot:run
+Ứng dụng sẽ khả dụng tại: http://localhost:8080 
+## 📡API Endpoints
+
+🔑 Auth Module
+
+**1. Đăng ký**
+
+POST /api/auth/register
+```
+Body:
 {
-  "username": "user01",
-  "email": "user01@example.com",
-  "password": "password123"
+"username": "user01",
+"email": "user01@example.com",
+"password": "password123"
+}
+```
+**2. Đăng nhập**
+
+POST /api/auth/login
+```
+Body:
+{
+"username": "user01",
+"password": "password123"
+}
+```
+```
+Response:
+{
+"accessToken": "...",
+"refreshToken": "..."
+}
+```
+**3. Refresh Token (Rotation)**
+
+POST /api/auth/refresh
+```
+Body:
+{
+"refreshToken": "<YOUR_REFRESH_TOKEN_HERE>"
 }
 ```
 
-### 2. Đăng nhập (Login)
-- **Endpoint:** `POST /api/auth/login`
-- **Body:**
-```json
-{
-  "username": "user01",
-  "password": "password123"
-}
+**👤 User Module**
+
+**4. Cập nhật thông tin**
+
+PUT /api/auth/update-profile
+
 ```
-- **Response:** Trả về `accessToken` và `refreshToken`.
-
-### 3. Làm mới Token (Refresh Token)
-- **Endpoint:** `POST /api/auth/refresh`
-- **Body:**
-```json
-{
-  "refreshToken": "<YOUR_REFRESH_TOKEN_HERE>"
-}
+Header:
+Authorization: Bearer <access_token>
 ```
-
-## 🛡️ Lưu ý bảo mật
-- File `.gitignore` đã được cấu hình để loại bỏ thư mục `secrets/`.
-- Không bao giờ commit file `jwt_private.pem` lên Version Control.
-
-## 📄 License
-MIT License
+```│
+├── config                 # Cấu hình chung (Security, OpenAPI, CORS)
+├── security               # Cấu trúc JWT (Filter, Handler, Provider)
+├── common                 # Các tiện ích, ngoại lệ (Utils, Exceptions)
+│
+└── module                 # Logic nghiệp vụ được đóng gói theo tính năng
+├── auth               # Module Xác thực (Login, Register, Token Refresh)
+│   ├── dto            # Data Transfer Objects (Request/Response)
+│   └── ...            # Controller, Service, Repository
+├── user               # Module Quản lý Người dùng (Profile Management)
+│   ├── entity         # User Entity
+│   └── ...
+└── token              # Module Quản lý Refresh Token
+├── entity         # RefreshToken Entity (Lưu trạng thái)
+└── ...
+```

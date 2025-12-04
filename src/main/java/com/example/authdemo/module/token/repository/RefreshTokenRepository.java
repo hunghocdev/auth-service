@@ -1,5 +1,6 @@
-package com.example.authdemo.token;
+package com.example.authdemo.module.token.repository;
 
+import com.example.authdemo.module.token.model.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 

@@ -1,7 +1,11 @@
-package com.example.authdemo.user;
+package com.example.authdemo.module.user.service;
 
-import com.example.authdemo.dto.LoginRequest;      // Kiểm tra login
-import com.example.authdemo.dto.RegisterRequest;   // Kiểm tra đăng nhập
+import com.example.authdemo.module.auth.dto.LoginRequest;      // Kiểm tra login
+import com.example.authdemo.module.auth.dto.RegisterRequest;   // Kiểm tra đăng nhập
+import com.example.authdemo.module.user.dto.UpdateProfileRequest;
+import com.example.authdemo.module.user.model.User;
+import com.example.authdemo.module.user.repository.UserRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,6 +21,9 @@ public class UserService {
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     // Nếu là đăng ký mới
@@ -51,7 +58,17 @@ public class UserService {
         return user.verifyPassword(req.getPassword(), passwordEncoder);
     }
 
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    @Transactional
+    public void updateProfile(String currentUsername, UpdateProfileRequest req) {
+        User user = userRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (req.getFullName() != null) user.setFullName(req.getFullName());
+        if (req.getPhoneNumber() != null) user.setPhoneNumber(req.getPhoneNumber());
+        if (req.getAddress() != null) user.setAddress(req.getAddress());
+        if (req.getDateOfBirth() != null) user.setDateOfBirth(req.getDateOfBirth());
+        if (req.getSex() != null) user.setSex(req.getSex());
+
+        userRepository.save(user);
     }
 }

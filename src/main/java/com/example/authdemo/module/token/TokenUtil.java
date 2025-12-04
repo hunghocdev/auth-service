@@ -1,4 +1,4 @@
-package com.example.authdemo.token;
+package com.example.authdemo.module.token;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

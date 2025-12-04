@@ -11,13 +11,17 @@
 # --- Cấu hình Dự án & Build --
 # target là nơi chứa mọi bản build, các file .class đã biên dịch và file JAR/WAR. BỎ QUA nó là BẮT BUỘC.
 /target/
+build/
+out/
+bin/
 
 # --- Cấu hình IDE (IDE Configuration) ---
 ### IntelliJ IDEA ###
-# Thư mục chứa cấu hình dự án của IntelliJ IDEA (cấu hình môi trường, module, v.v.).
+#IntelliJ IDEA
 .idea/
 *.iml
 *.iws
+*.ipr
 
 # Các file tạm thời
 *.iml
@@ -43,33 +47,33 @@
 
 # --- File Tạm thời & Log ---
 *.tmp
-# Các file sao lưu.
 *.bak
-# Các file nhật ký (log) nói chung (thường được lưu trong thư mục logs/ nhưng thêm mục này để bao quát hơn).
 *.log
 # Thư mục chứa tất cả các file log khi ứng dụng chạy.
 logs/
+npm-debug.log yarn-error.log
 
-# --- Hệ điều hành (OS-level) ---
-# macOS
-# File lưu trữ tùy chỉnh thư mục của macOS.
+#--- Hệ điều hành (OS-level) ---
 .DS_Store
-
-# Windows
-# File cache hình ảnh thu nhỏ của Windows.
 Thumbs.db
 
-# --- Môi trường & Bí mật (Environment / Secrets) ---
-# File cấu hình biến môi trường cục bộ (local environment variables).
+# File cấu hình biến môi trường cục bộ
 .env
-# Các file môi trường khác.
 *.env
-# Các file môi trường theo profile (ví dụ: .env.local).
 .env.*
+
 # File chứa bí mật/khóa nhạy cảm.
 .secret
-# Các file bí mật khác.
 *.secret
+
+#--- BẢO MẬT JWT & KEYS (QUAN TRỌNG) ---
+#Loại bỏ các file chứa key RSA/Certificate dùng trong JwtService
+*.pem
+*.key
+*.pub
+*.crt
+*.jks
+*.p12
 
 # --- Cấu hình Ứng dụng Spring Boot (Spring Boot Profiles) ---
 # Cấu hình cục bộ/phát triển (local/dev) không bao giờ nên được commit vì chúng chứa các thông tin nhạy cảm (DB, API Keys, v.v.)

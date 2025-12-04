@@ -1,4 +1,4 @@
-package com.example.authdemo.dto;
+package com.example.authdemo.module.auth.dto;
 
 public class LoginResponse {
     private String accessToken;

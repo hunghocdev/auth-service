@@ -1,4 +1,4 @@
-package com.example.authdemo.token;
+package com.example.authdemo.module.token.model;
 
 import jakarta.persistence.*;
 import java.time.Instant;

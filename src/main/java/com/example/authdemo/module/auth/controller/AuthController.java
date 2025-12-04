@@ -1,15 +1,16 @@
-package com.example.authdemo.auth;
+package com.example.authdemo.module.auth.controller;
 
-import com.example.authdemo.dto.AuthResponse;
-import com.example.authdemo.dto.LoginRequest;
-import com.example.authdemo.dto.LoginResponse;
-import com.example.authdemo.dto.RefreshRequest;
+import com.example.authdemo.module.auth.dto.AuthResponse;
+import com.example.authdemo.module.auth.dto.LoginRequest;
+import com.example.authdemo.module.auth.dto.LoginResponse;
+import com.example.authdemo.module.auth.dto.RefreshRequest;
 import com.example.authdemo.security.JwtService;
-import com.example.authdemo.token.RefreshToken;
-import com.example.authdemo.token.RefreshTokenRepository;
-import com.example.authdemo.token.TokenUtil;
-import com.example.authdemo.user.User;
-import com.example.authdemo.user.UserService;
+import com.example.authdemo.module.token.model.RefreshToken;
+import com.example.authdemo.module.token.repository.RefreshTokenRepository;
+import com.example.authdemo.module.token.TokenUtil;
+import com.example.authdemo.module.user.model.User;
+import com.example.authdemo.module.user.repository.UserRepository; // Nhớ import cái này
+import com.example.authdemo.module.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,15 +27,19 @@ public class AuthController {
     private final UserService userService;
     private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository; // Thêm Repository để tìm user khi refresh
 
     // Thời gian hết hạn của Refresh Token (30 ngày tính bằng mili giây)
-    // Bạn có thể đưa số này vào application.properties sau
     private static final long REFRESH_TOKEN_EXPIRY = 2592000000L;
 
-    public AuthController(UserService userService, JwtService jwtService, RefreshTokenRepository refreshTokenRepository) {
+    public AuthController(UserService userService,
+                          JwtService jwtService,
+                          RefreshTokenRepository refreshTokenRepository,
+                          UserRepository userRepository) { // Inject thêm vào constructor
         this.userService = userService;
         this.jwtService = jwtService;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.userRepository = userRepository;
     }
 
     // === ĐĂNG NHẬP ===
@@ -47,7 +52,8 @@ public class AuthController {
         User user = userService.findByUsername(req.getUsername()).orElseThrow();
 
         // 2. Tạo Access Token
-        String access = jwtService.createAccessToken(user.getId());
+        // SỬA QUAN TRỌNG: Dùng Username thay vì ID
+        String access = jwtService.createAccessToken(user.getUsername());
 
         // 3. Tạo Refresh Token
         String refreshRaw = jwtService.createRefreshTokenString();
@@ -97,7 +103,13 @@ public class AuthController {
 
         refreshTokenRepository.save(new RefreshToken(token.getUserId(), newRefreshHash, newExpires));
 
-        String newAccess = jwtService.createAccessToken(token.getUserId());
+        // 4. Tạo Access Token Mới
+        // SỬA QUAN TRỌNG: Phải tìm User để lấy Username
+        User user = userRepository.findById(token.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found during refresh"));
+
+        String newAccess = jwtService.createAccessToken(user.getUsername()); // Dùng Username
+
         return ResponseEntity.ok(new LoginResponse(newAccess, newRefreshRaw));
     }
 }
