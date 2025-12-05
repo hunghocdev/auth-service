@@ -9,14 +9,13 @@ import com.example.authdemo.module.token.model.RefreshToken;
 import com.example.authdemo.module.token.repository.RefreshTokenRepository;
 import com.example.authdemo.module.token.TokenUtil;
 import com.example.authdemo.module.user.model.User;
-import com.example.authdemo.module.user.repository.UserRepository; // Nhớ import cái này
+import com.example.authdemo.module.user.repository.UserRepository;
 import com.example.authdemo.module.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.time.Instant;
 import java.util.Optional;
 

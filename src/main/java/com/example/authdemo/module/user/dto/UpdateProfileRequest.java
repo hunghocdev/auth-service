@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public class UpdateProfileRequest {
-
     @Size(max = 100, message = "Họ tên quá dài")
     private String fullName;
 
@@ -21,8 +20,8 @@ public class UpdateProfileRequest {
 
     private String sex;
 
+    // Constructor
     public UpdateProfileRequest() {}
-
     public UpdateProfileRequest(String fullName, String phoneNumber, String address, LocalDate dateOfBirth, String sex) {
         this.fullName = fullName;
         this.phoneNumber = phoneNumber;

@@ -4,11 +4,10 @@ import jakarta.persistence.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "refresh_tokens", indexes = {
-        @Index(name = "idx_rt_user", columnList = "user_id")
+@Table(name = "refresh_tokens",
+        indexes = {@Index(name = "idx_rt_user", columnList = "user_id")
 })
 public class RefreshToken {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,28 +19,27 @@ public class RefreshToken {
     @Column(name = "token_hash", nullable = false, length = 128)
     private String tokenHash;
 
-    @Column(name = "expires_at", nullable = false)
-    private Instant expiresAt;
-
     @Column(name = "revoked", nullable = false)
     private boolean revoked = false;
+
+    @Column(name = "expires_at", nullable = false)
+    private Instant expiresAt;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 
-    // constructors, getters, setters
+    // constructors
     public RefreshToken() {}
     public RefreshToken(Long userId, String tokenHash, Instant expiresAt) {
         this.userId = userId;
         this.tokenHash = tokenHash;
         this.expiresAt = expiresAt;
     }
-    // getters/setters...
 
+    // getters/setters...
     public Long getId() {
         return id;
     }
-
     public void setId(Long id) {
         this.id = id;
     }
@@ -49,7 +47,6 @@ public class RefreshToken {
     public Long getUserId() {
         return userId;
     }
-
     public void setUserId(Long userId) {
         this.userId = userId;
     }
@@ -57,7 +54,6 @@ public class RefreshToken {
     public String getTokenHash() {
         return tokenHash;
     }
-
     public void setTokenHash(String tokenHash) {
         this.tokenHash = tokenHash;
     }
@@ -65,7 +61,6 @@ public class RefreshToken {
     public Instant getExpiresAt() {
         return expiresAt;
     }
-
     public void setExpiresAt(Instant expiresAt) {
         this.expiresAt = expiresAt;
     }
@@ -73,7 +68,6 @@ public class RefreshToken {
     public boolean isRevoked() {
         return revoked;
     }
-
     public void setRevoked(boolean revoked) {
         this.revoked = revoked;
     }
@@ -81,7 +75,6 @@ public class RefreshToken {
     public Instant getCreatedAt() {
         return createdAt;
     }
-
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
