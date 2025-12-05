@@ -65,6 +65,7 @@ Thumbs.db
 # File chứa bí mật/khóa nhạy cảm.
 .secret
 *.secret
+secrets/
 
 #--- BẢO MẬT JWT & KEYS (QUAN TRỌNG) ---
 #Loại bỏ các file chứa key RSA/Certificate dùng trong JwtService
