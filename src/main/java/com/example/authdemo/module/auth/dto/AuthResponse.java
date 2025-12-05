@@ -1,6 +1,6 @@
 package com.example.authdemo.module.auth.dto;
-//success: boolean -> thao tác thành công hay thất bại
-//message: String -> thông báo gửi lại cho client
+//success: boolean -> operation success or failure
+//message: String -> notification sent back to the client
 
 public class AuthResponse {
     private boolean success;
@@ -15,7 +15,6 @@ public class AuthResponse {
     public boolean isSuccess() {
         return success;
     }
-
     public void setSuccess(boolean success) {
         this.success = success;
     }
@@ -23,7 +22,6 @@ public class AuthResponse {
     public String getMessage() {
         return message;
     }
-
     public void setMessage(String message) {
         this.message = message;
     }

@@ -14,7 +14,6 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -22,53 +21,49 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
+    // check if the username exists in the database
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    // Nếu là đăng ký mới
-    // Kiểm tra username or email đã tồn tại hay chưa
+    // Register
     @Transactional
     public void register(RegisterRequest req) {
         if (userRepository.existsByUsername(req.getUsername())) {
-            throw new IllegalArgumentException("Username already exists");  // bắt lỗi ném ra thông báo
+            throw new IllegalArgumentException("Username already exists");
         }
         if (userRepository.existsByEmail(req.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
         // hash password in service layer
-        // bắt đầu mã hóa mật khẩu
         String hashed = passwordEncoder.encode(req.getPassword());
-        // thêm thông tin user mới vào DB
+        // save infor in database
         User user = new User(req.getUsername().trim(), req.getEmail().trim(), hashed);
         userRepository.save(user);
     }
 
-    // Nếu là đăng nhập
-    @Transactional(readOnly = true) // Chỉ đọc dữ liệu từ database, không thực hiện thay đổi (insert/update/delete).
+    // Login
+    @Transactional(readOnly = true) // read only in database, don not make changes (insert/update/delete).
     public boolean login(LoginRequest req) {
-        // tìm thông tin của người đăng nhập trong DB
         Optional<User> opt = userRepository.findByUsername(req.getUsername());
-        // opt trả về rỗng có nghĩa là không có Username trong DB
-        if (opt.isEmpty()) return false;    // Trả về false đăng nhập thất bại
-
-        User user = opt.get();      // lấy thông tin của user đăng nhập
+        if (opt.isEmpty()) return false;    // return false login false
+        User user = opt.get();
         // verify password via the entity method (BCrypt checks salt embedded in stored hash)
         // Keep the comparison inside the entity so the password hash is not widely exposed
         return user.verifyPassword(req.getPassword(), passwordEncoder);
     }
-
+    // Update profile
     @Transactional
     public void updateProfile(String currentUsername, UpdateProfileRequest req) {
         User user = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
+        // if value is not null, set value update value
         if (req.getFullName() != null) user.setFullName(req.getFullName());
         if (req.getPhoneNumber() != null) user.setPhoneNumber(req.getPhoneNumber());
         if (req.getAddress() != null) user.setAddress(req.getAddress());
         if (req.getDateOfBirth() != null) user.setDateOfBirth(req.getDateOfBirth());
         if (req.getSex() != null) user.setSex(req.getSex());
-
+        // save in database
         userRepository.save(user);
     }
 }
