@@ -105,13 +105,13 @@ Authorization: Bearer <access_token>
 ├── common                 # Các tiện ích, ngoại lệ (Utils, Exceptions)
 │
 └── module                 # Logic nghiệp vụ được đóng gói theo tính năng
-├── auth               # Module Xác thực (Login, Register, Token Refresh)
-│   ├── dto            # Data Transfer Objects (Request/Response)
-│   └── ...            # Controller, Service, Repository
-├── user               # Module Quản lý Người dùng (Profile Management)
-│   ├── entity         # User Entity
-│   └── ...
-└── token              # Module Quản lý Refresh Token
-├── entity         # RefreshToken Entity (Lưu trạng thái)
-└── ...
+    ├── auth               # Module Xác thực (Login, Register, Token Refresh)
+    │   ├── dto            # Data Transfer Objects (Request/Response)
+    │   └── ...            # Controller, Service, Repository
+    ├── user               # Module Quản lý Người dùng (Profile Management)
+    │   ├── entity         # User Entity
+    │   └── ...
+    └── token              # Module Quản lý Refresh Token
+    ├── entity         # RefreshToken Entity (Lưu trạng thái)
+    └── ...
 ```
