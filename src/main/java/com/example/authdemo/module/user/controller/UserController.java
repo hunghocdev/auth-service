@@ -56,12 +56,16 @@ public class UserController {
         String newRefreshHash = TokenUtil.sha256Hex(newRefreshRaw);
         Instant newExpires = Instant.now().plusMillis(2592000000L); // 30 ngày
 
+
         // Cancel the old token
         var existingTokens = refreshTokenRepository.findByUserIdAndRevokedFalse(user.getId());
-        existingTokens.forEach(t -> {
-            t.setRevoked(true);
-            refreshTokenRepository.save(t);
-        });
+
+        if (!existingTokens.isEmpty()) {
+            // 1. Cập nhật trạng thái revoked
+            existingTokens.forEach(t -> t.setRevoked(true));
+            // 2. Tối ưu: Chỉ gọi saveAll một lần
+            refreshTokenRepository.saveAll(existingTokens);
+        }
 
         // Lưu token mới
         refreshTokenRepository.save(new RefreshToken(user.getId(), newRefreshHash, newExpires));

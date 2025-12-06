@@ -62,13 +62,15 @@ public class AuthController {
 
         // Revoke token cũ
         var existingTokens = refreshTokenRepository.findByUserIdAndRevokedFalse(user.getId());
-        existingTokens.forEach(t -> {
-            t.setRevoked(true);
-            refreshTokenRepository.save(t);
-        });
-
+        if (!existingTokens.isEmpty()) {
+            // 1. Cập nhật trạng thái revoked
+            existingTokens.forEach(t -> t.setRevoked(true));
+            // 2. Tối ưu: Chỉ gọi saveAll một lần
+            refreshTokenRepository.saveAll(existingTokens);
+        }
         // Save new token in database
         refreshTokenRepository.save(new RefreshToken(user.getId(), refreshHash, expiresAt));
+
         //  Đóng gói dto và trả về client
         return ResponseEntity.ok(new LoginResponse(access, refreshRaw));
     }

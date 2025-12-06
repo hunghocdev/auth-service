@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.NoSuchElementException;
 
-//RestControllerAdvice: Spring tự động quét và đăng ký annotation này làm nơi xử lý lỗi toàn bộ khi ứng dụng khởi động
+// Import lớp ngoại lệ tùy chỉnh của bạn
+// import com.example.authdemo.module.auth.exception.UserAlreadyExistsException; // (Ví dụ)
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -49,6 +51,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<AuthResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new AuthResponse(false, ex.getMessage()));
+    }
+
+    /**
+     * Bổ sung: Bắt lỗi UserAlreadyExistsException (Tài khoản đã tồn tại)
+     * Trả về: 409 Conflict
+     */
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<AuthResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT) // HTTP Status 409
                 .body(new AuthResponse(false, ex.getMessage()));
     }
 
