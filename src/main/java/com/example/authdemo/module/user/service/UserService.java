@@ -5,6 +5,8 @@ import com.example.authdemo.module.auth.dto.RegisterRequest;   // Kiểm tra đ�
 import com.example.authdemo.module.user.dto.UpdateProfileRequest;
 import com.example.authdemo.module.user.model.User;
 import com.example.authdemo.module.user.repository.UserRepository;
+import com.example.authdemo.common.exception.UserAlreadyExistsException;
+
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +32,12 @@ public class UserService {
     @Transactional
     public void register(RegisterRequest req) {
         if (userRepository.existsByUsername(req.getUsername())) {
-            throw new IllegalArgumentException("Username already exists");
+            // Thay IllegalArgumentException bằng UserAlreadyExistsException
+            throw new UserAlreadyExistsException("Username " + req.getUsername() + " đã tồn tại");
         }
         if (userRepository.existsByEmail(req.getEmail())) {
-            throw new IllegalArgumentException("Email already exists");
+            // Thay IllegalArgumentException bằng UserAlreadyExistsException
+            throw new UserAlreadyExistsException("Email " + req.getEmail() + " đã tồn tại");
         }
         // hash password in service layer
         String hashed = passwordEncoder.encode(req.getPassword());
