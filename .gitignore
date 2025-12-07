@@ -28,6 +28,7 @@ bin/
 *.log
 
 ### Maven ###
+./mvnw
 # File tạm thời liên quan đến thời gian build của Maven.
 .mvn/timing.properties
 # Cấu hình của Maven Wrapper (file này thường CẦN được commit, nhưng trong nhiều mẫu .gitignore nó bị bỏ qua
@@ -51,7 +52,8 @@ bin/
 *.log
 # Thư mục chứa tất cả các file log khi ứng dụng chạy.
 logs/
-npm-debug.log yarn-error.log
+npm-debug.log
+yarn-error.log
 
 #--- Hệ điều hành (OS-level) ---
 .DS_Store

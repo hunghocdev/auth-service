@@ -3,11 +3,14 @@ Dự án triển khai một hệ thống **Xác thực (Authentication)** an to�
 
 ---
 ## 🚀 Tính Năng Nổi Bật
+
+**🛡️ Bảo Mật (Security)**
 * **Modular Architecture:** Tổ chức mã nguồn rõ ràng theo tính năng chính (**auth**, **user**, **token**), giúp dễ dàng quản lý và mở rộng.
 * **RSA Security (RS256):** Sử dụng thuật toán bất đối xứng **RSA (RS256)** để ký và xác thực token, tăng cường bảo mật so với các thuật toán đối xứng (HMAC).
 * **Token Rotation:** Cơ chế **Refresh Token** an toàn, giúp tự động cấp lại **Access Token** mới và **thu hồi token cũ** ngay sau khi sử dụng (One-Time-Use Refresh Tokens), giảm thiểu rủi ro bị đánh cắp token.
 * **User Management:** Các API cơ bản để quản lý thông tin và cấu hình người dùng.
 * **Database Storage:** Lưu trữ trạng thái người dùng (**User**) và trạng thái **Refresh Token** trong cơ sở dữ liệu **MySQL** thông qua **Spring Data JPA**.
+* **Standard Auth Flow:** Đăng ký, Đăng nhập, Validate dữ liệu đầu vào chặt chẽ.
 ---
 ## 🛠️ Tech Stack
 
@@ -99,19 +102,76 @@ PUT /api/auth/update-profile
 Header:
 Authorization: Bearer <access_token>
 ```
-```│
-├── config                 # Cấu hình chung (Security, OpenAPI, CORS)
-├── security               # Cấu trúc JWT (Filter, Handler, Provider)
-├── common                 # Các tiện ích, ngoại lệ (Utils, Exceptions)
+
+**5. Tạo Laptop mới (Test Auditing created_by)**
+
+POST /api/auth/
+
+```
+Body:
+{
+    "name": "Test Laptop Audit",
+    "price": 2000.0,
+    "brandId": 1
+}
+```
+
+**6. Cập nhật Laptop (Test Auditing updated_by)**
+
+PUT /api/auth/{id}
+
+```
+Body:
+{
+    "price": 5000.0
+}
+```
+
+**7. Xóa mềm Laptop (is_deleted = true)**
+
+DELETE /api/auth/{id}
+
+```
+Header:
+{
+DELETE http://localhost:8080/api/laptops/{id}
+}
+```
+
+**8. Xem chi tiết (Chặn nếu đã xóa mềm)**
+
+GET /api/auth/{id}
+
+```
+Header:
+{
+    /api/auth/{id}
+}
+```
+
+**9. Tìm kiếm & Lọc nâng cao**
+
+GET /api/auth/
+
+```
+Header:
+GET /api/laptops?page=0&size=10&keyword=MacBook&minPrice=1000&sortDir=desc
+```
+
+```
+com.example.authdemo
 │
-└── module                 # Logic nghiệp vụ được đóng gói theo tính năng
-    ├── auth               # Module Xác thực (Login, Register, Token Refresh)
-    │   ├── dto            # Data Transfer Objects (Request/Response)
-    │   └── ...            # Controller, Service, Repository
-    ├── user               # Module Quản lý Người dùng (Profile Management)
-    │   ├── entity         # User Entity
-    │   └── ...
-    └── token              # Module Quản lý Refresh Token
-    ├── entity         # RefreshToken Entity (Lưu trạng thái)
-    └── ...
+├── config                 # Cấu hình (Security, Auditing, AppConfig)
+├── security               # Bộ lọc JWT (Filter) & Service xử lý Token
+├── common                 # Các class dùng chung (BaseEntity, Exceptions, GlobalHandler)
+│
+└── module                 # CHỨA LOGIC NGHIỆP VỤ (Feature-based)
+    ├── auth               # Login, Register, Refresh Token
+    ├── user               # User Entity & Profile Management
+    ├── token              # Refresh Token Entity
+    └── product            # [NEW] Laptop & Brand Management
+        ├── controller
+        ├── service
+        ├── repository     # JpaSpecificationExecutor (Search/Filter)
+        └── model          # Laptop, Brand
 ```
