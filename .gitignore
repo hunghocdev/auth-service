@@ -1,76 +1,77 @@
-# file .gitignore là "bảo vệ" Repository khỏi các file không cần thiết, lớn, hoặc nhạy cảm.
+########################################
+# IDE & Workspace (KHÔNG COMMIT)
+########################################
 
-# Default ignored files
-# Thư mục tạm thời của IDE, thường liên quan đến các thay đổi chưa commit.
-/shelf/
-# File lưu trữ cấu hình không gian làm việc của IDE (ví dụ: IntelliJ)
-/.idea/workspace.xml
-# Thư mục chứa các file log/lịch sử yêu cầu HTTP của IDE.
-/httpRequests/
-
-# --- Cấu hình Dự án & Build --
-# target là nơi chứa mọi bản build, các file .class đã biên dịch và file JAR/WAR. BỎ QUA nó là BẮT BUỘC.
-/target/
-build/
-out/
-bin/
-
-# --- Cấu hình IDE (IDE Configuration) ---
-### IntelliJ IDEA ###
-#IntelliJ IDEA
+# IntelliJ IDEA
 .idea/
 *.iml
 *.iws
 *.ipr
+/shelf/
+/httpRequests/
 
-# Các file tạm thời
-*.iml
-*.log
-
-### Maven ###
-./mvnw
-# File tạm thời liên quan đến thời gian build của Maven.
-.mvn/timing.properties
-# Cấu hình của Maven Wrapper (file này thường CẦN được commit, nhưng trong nhiều mẫu .gitignore nó bị bỏ qua
-# để tránh conflict khi thay đổi phiên bản wrapper). Tốt nhất là **KHÔNG** nên bỏ qua trừ khi có lý do cụ thể.
-.mvn/wrapper/maven-wrapper.properties
-# File JAR của Maven Wrapper (thường CẦN được commit).
-.mvn/wrapper/maven-wrapper.jar
-
-
-### VS Code ###
+# VS Code
 .vscode/
 
-### Eclipse ###
+# Eclipse
 .project
 .classpath
 .settings/
 
-# --- File Tạm thời & Log ---
+
+########################################
+# Build & Output (BẮT BUỘC BỎ QUA)
+########################################
+
+# Maven / Gradle
+/target/
+build/
+
+# IDE output
+out/
+bin/
+
+
+########################################
+# Logs & Temporary Files
+########################################
+
+*.log
 *.tmp
 *.bak
-*.log
-# Thư mục chứa tất cả các file log khi ứng dụng chạy.
 logs/
+
+# Node / Yarn (nếu có frontend)
 npm-debug.log
 yarn-error.log
 
-#--- Hệ điều hành (OS-level) ---
+
+########################################
+# Operating System
+########################################
+
 .DS_Store
 Thumbs.db
 
-# File cấu hình biến môi trường cục bộ
+
+########################################
+# Environment Variables (BẢO MẬT)
+########################################
+
 .env
 *.env
 .env.*
 
-# File chứa bí mật/khóa nhạy cảm.
+
+########################################
+# Secrets & Keys (CỰC KỲ QUAN TRỌNG)
+########################################
+
+secrets/
 .secret
 *.secret
-secrets/
 
-#--- BẢO MẬT JWT & KEYS (QUAN TRỌNG) ---
-#Loại bỏ các file chứa key RSA/Certificate dùng trong JwtService
+# JWT / SSL / RSA / Certificates
 *.pem
 *.key
 *.pub
@@ -78,13 +79,31 @@ secrets/
 *.jks
 *.p12
 
-# --- Cấu hình Ứng dụng Spring Boot (Spring Boot Profiles) ---
-# Cấu hình cục bộ/phát triển (local/dev) không bao giờ nên được commit vì chúng chứa các thông tin nhạy cảm (DB, API Keys, v.v.)
+
+########################################
+# Spring Boot Configuration (Profiles)
+########################################
+
+# Local / Dev configs (KHÔNG commit)
 application-local.properties
 application-local.yml
 application-dev.properties
 application-dev.yml
 
-# Ngăn chặn việc commit nhầm các profile cấu hình chứa thông tin nhạy cảm.
+# Secret profiles
 application-*.secret.properties
 application-*.secret.yml
+
+
+########################################
+# Maven Wrapper
+########################################
+
+# Chỉ bỏ qua file timing
+.mvn/timing.properties
+
+# GIỮ lại:
+# mvnw
+# mvnw.cmd
+# .mvn/wrapper/maven-wrapper.jar
+# .mvn/wrapper/maven-wrapper.properties
