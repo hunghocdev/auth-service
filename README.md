@@ -1,9 +1,3 @@
-# 🔐 Spring Boot JWT Authentication Demo (RS256 & Token Rotation)
-Dự án triển khai một hệ thống **Xác thực (Authentication)** an toàn và hiện đại sử dụng **Spring Boot 3** và **JSON Web Tokens (JWT)**. Hệ thống được thiết kế theo kiến trúc **Feature-based Packaging** để tối ưu hóa khả năng bảo trì và mở rộng, đồng thời tích hợp các cơ chế bảo mật nâng cao như **ký token bằng RSA (RS256)** và **Token Rotation**.
-
----
-## 🚀 Tính Năng Nổi Bật
-* **Modular Architecture:** Tổ chức mã nguồn rõ ràng theo tính năng chính (**auth**, **user**, **token**), giúp dễ dàng quản lý và mở rộng.
 * **RSA Security (RS256):** Sử dụng thuật toán bất đối xứng **RSA (RS256)** để ký và xác thực token, tăng cường bảo mật so với các thuật toán đối xứng (HMAC).
 * **Token Rotation:** Cơ chế **Refresh Token** an toàn, giúp tự động cấp lại **Access Token** mới và **thu hồi token cũ** ngay sau khi sử dụng (One-Time-Use Refresh Tokens), giảm thiểu rủi ro bị đánh cắp token.
 * **User Management:** Các API cơ bản để quản lý thông tin và cấu hình người dùng.
@@ -59,47 +53,7 @@ mvn clean spring-boot:run
 
 🔑 Auth Module
 
-**1. Đăng ký**
-
-POST /api/auth/register
-```
-Body:
-{
-"username": "user01",
-"email": "user01@example.com",
-"password": "password123"
-}
-```
-**2. Đăng nhập**
-
-POST /api/auth/login
-```
-Body:
-{
-"username": "user01",
-"password": "password123"
-}
-```
-```
-Response:
-{
-"accessToken": "...",
-"refreshToken": "..."
-}
-```
-**3. Refresh Token (Rotation)**
-
-POST /api/auth/refresh
-```
-Body:
-{
-"refreshToken": "<YOUR_REFRESH_TOKEN_HERE>"
-}
-```
-
-**👤 User Module**
-
-**4. Cập nhật thông tin**
+	@@ -95,23 +103,26 @@ Body:
 
 PUT /api/auth/update-profile
 

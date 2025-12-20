@@ -1,0 +1,109 @@
+########################################
+# IDE & Workspace (KHÔNG COMMIT)
+########################################
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+/shelf/
+/httpRequests/
+
+# VS Code
+.vscode/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+
+########################################
+# Build & Output (BẮT BUỘC BỎ QUA)
+########################################
+
+# Maven / Gradle
+/target/
+build/
+
+# IDE output
+out/
+bin/
+
+
+########################################
+# Logs & Temporary Files
+########################################
+
+*.log
+*.tmp
+*.bak
+logs/
+
+# Node / Yarn (nếu có frontend)
+npm-debug.log
+yarn-error.log
+
+
+########################################
+# Operating System
+########################################
+
+.DS_Store
+Thumbs.db
+
+
+########################################
+# Environment Variables (BẢO MẬT)
+########################################
+
+.env
+*.env
+.env.*
+
+
+########################################
+# Secrets & Keys (CỰC KỲ QUAN TRỌNG)
+########################################
+
+secrets/
+.secret
+*.secret
+
+# JWT / SSL / RSA / Certificates
+*.pem
+*.key
+*.pub
+*.crt
+*.jks
+*.p12
+
+
+########################################
+# Spring Boot Configuration (Profiles)
+########################################
+
+# Local / Dev configs (KHÔNG commit)
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+
+# Secret profiles
+application-*.secret.properties
+application-*.secret.yml
+
+
+########################################
+# Maven Wrapper
+########################################
+
+# Chỉ bỏ qua file timing
+.mvn/timing.properties
+
+# GIỮ lại:
+# mvnw
+# mvnw.cmd
+# .mvn/wrapper/maven-wrapper.jar
+# .mvn/wrapper/maven-wrapper.properties
