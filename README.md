@@ -7,19 +7,32 @@ Dự án triển khai một hệ thống **Xác thực (Authentication)** an to�
 * **RSA Security (RS256):** Sử dụng thuật toán bất đối xứng **RSA (RS256)** để ký và xác thực token, tăng cường bảo mật so với các thuật toán đối xứng (HMAC).
 * **Token Rotation:** Cơ chế **Refresh Token** an toàn, giúp tự động cấp lại **Access Token** mới và **thu hồi token cũ** ngay sau khi sử dụng (One-Time-Use Refresh Tokens), giảm thiểu rủi ro bị đánh cắp token.
 * **User Management:** Các API cơ bản để quản lý thông tin và cấu hình người dùng.
+* **Interactive API Docs:** Tích hợp Swagger UI, cho phép xem cấu trúc API và kiểm thử trực tiếp trên giao diện web.
 * **Database Storage:** Lưu trữ trạng thái người dùng (**User**) và trạng thái **Refresh Token** trong cơ sở dữ liệu **MySQL** thông qua **Spring Data JPA**.
+* **Advanced Search:** Tìm kiếm và lọc sản phẩm linh hoạt với JpaSpecificationExecutor.
 ---
 ## 🛠️ Tech Stack
 
-| Thành phần | Phiên bản/Công nghệ | Mục đích |
-| :--- | :--- | :--- |
-| **Core** | Java 17, Spring Boot 3.2+ | Nền tảng phát triển ứng dụng Microservice/REST API. |
+| Thành phần | Phiên bản/Công nghệ                 | Mục đích |
+| :--- |:------------------------------------| :--- |
+| **Core** | Java 17, Spring Boot 3.2+           | Nền tảng phát triển ứng dụng Microservice/REST API. |
 | **Security** | Spring Security 6, Java-JWT (Auth0) | Quản lý xác thực, ủy quyền và xử lý JWT. |
-| **Data** | MySQL, Spring Data JPA | Lưu trữ dữ liệu và thao tác với Database. |
-| **Build Tool** | Maven | Quản lý dependencies và build project. |
-| **Tooling** | OpenSSL | Khởi tạo cặp khóa RSA. |
+| **API Docs** | SpringDoc OpenAPI 2.8.3             | Tự động tạo tài liệu API và giao diện Swagger UI. |
+| **Data** | MySQL, Spring Data JPA              | Lưu trữ dữ liệu và thao tác với Database. |
+| **Build Tool** | Maven                               | Quản lý dependencies và build project. |
+| **Tooling** | OpenSSL                             | Khởi tạo cặp khóa RSA. |
 
 ---
+## 📡 Tài Liệu API (Swagger UI)
+Hệ thống tích hợp sẵn giao diện Swagger UI để hỗ trợ lập trình viên Frontend và Tester.
+- Đường dẫn truy cập: http://localhost:8080/swagger-ui/index.html
+- Định nghĩa API (JSON): http://localhost:8080/v3/api-docs
+### Hướng dẫn kiểm thử API có bảo mật trên Swagger:
+1. Truy cập API POST /api/auth/login, thực hiện đăng nhập để nhận chuỗi accessToken.
+2. Nhấn nút Authorize (biểu tượng ổ khóa màu xanh) ở phía trên cùng bên phải giao diện Swagger.
+3. Dán chuỗi Token vào ô Value (hệ thống đã cấu hình tự động thêm tiền tố "Bearer ").
+4. Nhấn Authorize -> Close.
+5. Giờ đây, bạn có thể gọi các API yêu cầu đăng nhập như /api/laptops bằng nút Try it out.
 ## ⚙️ Cài Đặt & Khởi Chạy
 
 ### 1. Yêu Cầu Tiên Quyết
@@ -27,27 +40,22 @@ Dự án triển khai một hệ thống **Xác thực (Authentication)** an to�
 * **JDK 17** hoặc mới hơn.
 * **Maven** (3.6+).
 * **MySQL Server** đang hoạt động.
+* **Cặp khóa RSA** trong thư mục secrets/ (đã được cấu hình trong application.properties).
 
-### 2. Cấu Hình Database
+### 2. Cấu Hình Dependency (pom.xml)
+Đảm bảo bạn sử dụng phiên bản tương thích với Spring Boot 3.4:
 
-Tạo Database và cập nhật thông tin kết nối trong file `src/main/resources/application.properties` (hoặc `application.yml`):
-
-sql
-CREATE DATABASE authdemo_db;
-
- **Lưu ý:** Cập nhật thông tin spring.datasource.url, spring.datasource.username, và spring.datasource.password trong file cấu hình.
-
-### 3. Trích xuất Public Key từ Private Key
-openssl rsa -pubout -in jwt_private.pem -out jwt_public.pem
-
-### Quay lại thư mục gốc
-cd ..
-**⚠️ Bảo mật:** Thư mục secrets/ và các file .pem đã được cấu hình trong .gitignore và KHÔNG được commit lên Version Control (Git).
-
-## 4. Khởi Chạy Ứng Dụng
-Sử dụng Maven để chạy ứng dụng:Bashmvn spring-boot:run
-Ứng dụng sẽ khả dụng tại: http://localhost:8080 
-## 📡API Endpoints
+````
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>2.8.3</version>
+</dependency>
+````
+### 3. Khởi Chạy
+````
+mvn clean spring-boot:run
+````
 
 🔑 Auth Module
 
@@ -95,23 +103,26 @@ Body:
 
 PUT /api/auth/update-profile
 
-```
-Header:
-Authorization: Bearer <access_token>
-```
-```│
-├── config                 # Cấu hình chung (Security, OpenAPI, CORS)
-├── security               # Cấu trúc JWT (Filter, Handler, Provider)
-├── common                 # Các tiện ích, ngoại lệ (Utils, Exceptions)
+### 📂 Cấu Trúc Dự Án
+````
+com.example.authdemo
 │
-└── module                 # Logic nghiệp vụ được đóng gói theo tính năng
-├── auth               # Module Xác thực (Login, Register, Token Refresh)
-│   ├── dto            # Data Transfer Objects (Request/Response)
-│   └── ...            # Controller, Service, Repository
-├── user               # Module Quản lý Người dùng (Profile Management)
-│   ├── entity         # User Entity
-│   └── ...
-└── token              # Module Quản lý Refresh Token
-├── entity         # RefreshToken Entity (Lưu trạng thái)
-└── ...
-```
+├── config                 # Cấu hình (Security, OpenApiConfig, Auditing)
+├── security               # JWT Filter & JwtService (RSA Logic)
+├── common                 # BaseEntity, GlobalExceptionHandler, DTOs
+│
+└── module                 # NGHIỆP VỤ THEO TÍNH NĂNG
+├── auth               # API Login, Register, Refresh Token
+├── user               # Quản lý người dùng & Profile
+├── token              # Quản lý vòng đời Refresh Token
+└── product            # Quản lý Laptop & Brand
+├── controller     # Chứa các Swagger Annotations (@Operation, @Tag)
+├── service
+├── repository     # Specification Search
+└── model          # Entities (Laptop, Brand)
+````
+
+
+### ⚠️ Lưu Ý Bảo Mật
+- Thư mục **secrets/** chứa khóa Private Key tuyệt đối không được đưa lên Git.
+- Trên môi trường Production, nên tắt Swagger UI bằng cấu hình: springdoc.api-docs.enabled=false.

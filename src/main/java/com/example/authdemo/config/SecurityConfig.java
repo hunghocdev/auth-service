@@ -26,14 +26,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Tắt CSRF
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Cho phép truy cập public
-                        .anyRequest().authenticated() // Còn lại phải đăng nhập
+                        // 1. Cho phép các endpoint Auth của bạn
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // 2. Mở khóa Swagger UI và API Docs
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/webjars/**"
+                        ).permitAll()
+
+                        // 3. Các request còn lại mới cần login
+                        .anyRequest().authenticated()
                 )
-                // Cấu hình không lưu Session (Stateless) vì dùng JWT
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Thêm filter JWT vào trước filter đăng nhập mặc định
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
