@@ -3,10 +3,11 @@ package com.example.authdemo.module.user.service;
 import com.example.authdemo.module.auth.dto.LoginRequest;      // Kiểm tra login
 import com.example.authdemo.module.auth.dto.RegisterRequest;   // Kiểm tra đăng nhập
 import com.example.authdemo.module.user.dto.UpdateProfileRequest;
-import com.example.authdemo.module.user.model.User;
+import com.example.authdemo.module.user.entity.Role;
+import com.example.authdemo.module.user.entity.User;
 import com.example.authdemo.module.user.repository.UserRepository;
+import com.example.authdemo.module.user.repository.RoleRepository;
 import com.example.authdemo.common.exception.UserAlreadyExistsException;
-
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,10 +18,12 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final  RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository,PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
     // check if the username exists in the database
@@ -43,6 +46,10 @@ public class UserService {
         String hashed = passwordEncoder.encode(req.getPassword());
         // save infor in database
         User user = new User(req.getUsername().trim(), req.getEmail().trim(), hashed);
+        // Find ROLE_USER about DB and add in User
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+        user.getRoles().add(userRole);
         userRepository.save(user);
     }
 

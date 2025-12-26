@@ -2,6 +2,7 @@ package com.example.authdemo.module.product.controller;
 
 import com.example.authdemo.module.product.service.LaptopService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.example.authdemo.module.product.dto.LaptopRequest;
 import com.example.authdemo.module.product.dto.LaptopResponse;
@@ -24,6 +25,7 @@ public class LaptopController {
      * @return The created laptop object.
      */
     @PostMapping
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<LaptopResponse> create(@Valid @RequestBody LaptopRequest req) {
         return ResponseEntity.ok(laptopService.create(req));
     }
@@ -36,6 +38,7 @@ public class LaptopController {
      * @return The specific laptop object.
      */
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<LaptopResponse> getOne(@Valid @PathVariable Long id) {
         return ResponseEntity.ok(laptopService.getOne(id));
     }
@@ -46,6 +49,7 @@ public class LaptopController {
      * Supports search (keyword), price filtering, brand filtering, sorting, and pagination.
      */
     @GetMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<PageResponse<LaptopResponse>> getMany(
             @RequestParam(required = false) String keyword, // Search term (e.g., in name or description)
             @RequestParam(required = false) Double minPrice, // Filter by minimum price
@@ -65,6 +69,7 @@ public class LaptopController {
      * @return The updated laptop object.
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<LaptopResponse> update(@PathVariable Long id, @RequestBody LaptopRequest req) {
         return ResponseEntity.ok(laptopService.update(id, req));
     }
@@ -77,6 +82,7 @@ public class LaptopController {
      * @return 204 No Content status upon successful operation.
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<Void> softDelete(@PathVariable Long id) {
         laptopService.softDelete(id);
         return ResponseEntity.noContent().build();

@@ -10,7 +10,8 @@ public class Brand {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "brand_name", nullable = false)
+//    @Column(name = "brand_name", nullable = false)
+    @Column(name = "name")
     private String brandName;
 
     // Quan hệ 1 Brand - N Laptop

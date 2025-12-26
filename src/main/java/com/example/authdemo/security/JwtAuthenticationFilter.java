@@ -1,5 +1,6 @@
 package com.example.authdemo.security;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +15,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Filter xử lý JWT theo luồng:
+ * JWT -> Verify -> Lấy Subject (username) -> Load User từ DB -> Lấy Role thực tế -> Set SecurityContext
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -30,44 +35,47 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String username;
 
-        // 1. Kiểm tra header
+        // 1. Kiểm tra cấu trúc Header Authorization
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 2. Lấy token
-        jwt = authHeader.substring(7);
-        // Giả sử JwtService của bạn có hàm extractUsername, nếu chưa có thì dùng logic verify để lấy subject
-        // Ở đây tôi giả định bạn đã verify bên trong service hoặc dùng thư viện JJWT để parse
+        final String jwt = authHeader.substring(7);
+
         try {
-            // Logic giải mã token để lấy username (tùy vào JwtService của bạn viết thế nào)
-            // username = jwtService.extractUsername(jwt);
-            // Nếu JwtService chưa có hàm này, bạn cần bổ sung.
-            // Tạm thời tôi dùng một cách giải mã đơn giản nếu bạn dùng thư viện auth0/java-jwt:
-            username = com.auth0.jwt.JWT.decode(jwt).getSubject(); // Lấy User ID (subject) hoặc Username
+            // 2. Verify Token để đảm bảo tính toàn vẹn (Signature) và thời hạn (Expiration)
+            DecodedJWT decodedJWT = jwtService.verifyAccessToken(jwt);
+            String username = decodedJWT.getSubject();
+
+            // 3. Nếu Token hợp lệ và chưa có thông tin xác thực trong Context hiện tại
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                // 4. LOAD USER TỪ DATABASE: Đảm bảo lấy được Roles mới nhất từ DB
+                // Hàm loadUserByUsername sẽ gọi tới CustomUserDetailsService của bạn
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
+                // 5. Tạo đối tượng Authentication với đầy đủ danh sách quyền hạn (Authorities)
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                // 6. Thiết lập vào SecurityContext để các bước kiểm tra @PreAuthorize phía sau hoạt động
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                // Log để kiểm tra kết quả nạp quyền trong console IntelliJ
+                System.out.println(">>> [FILTER SUCCESS] Authenticated User: " + username + " | Authorities: " + userDetails.getAuthorities());
+            }
         } catch (Exception e) {
-            filterChain.doFilter(request, response);
-            return;
+            // Nếu có lỗi (Token sai, hết hạn, hoặc User không tồn tại trong DB), log lỗi và tiếp tục chuỗi Filter
+            System.err.println(">>> [FILTER ERROR] Authentication failed: " + e.getMessage());
         }
 
-        // 3. Xác thực với Spring Security
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
-            // Nếu token hợp lệ (bạn cần viết hàm isTokenValid trong JwtService hoặc kiểm tra expiration)
-            // Giả sử token đã qua bước decode ở trên là tạm ổn
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
-            );
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        }
         filterChain.doFilter(request, response);
     }
 }

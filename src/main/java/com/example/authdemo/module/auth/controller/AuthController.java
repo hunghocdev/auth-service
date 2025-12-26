@@ -8,18 +8,22 @@ import com.example.authdemo.security.JwtService;
 import com.example.authdemo.module.token.model.RefreshToken;
 import com.example.authdemo.module.token.repository.RefreshTokenRepository;
 import com.example.authdemo.module.token.TokenUtil;
-import com.example.authdemo.module.user.model.User;
+import com.example.authdemo.module.user.entity.User;
 import com.example.authdemo.module.user.repository.UserRepository;
 import com.example.authdemo.module.user.service.UserService;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,9 +34,15 @@ public class AuthController {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
+    // Thời gian sống của Refresh Token (ví dụ: 30 ngày)
     private static final long REFRESH_TOKEN_EXPIRY = 2592000000L;
 
-    public AuthController(UserService userService, JwtService jwtService, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
+    public AuthController(
+            UserService userService,
+            JwtService jwtService,
+            RefreshTokenRepository refreshTokenRepository,
+            UserRepository userRepository
+    ) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.refreshTokenRepository = refreshTokenRepository;
@@ -42,36 +52,35 @@ public class AuthController {
     // === Login ===
     @PostMapping("/login")
     public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest req) {
-        // 1. check username/password
+        // 1. Kiểm tra username/password thông qua UserService
         boolean ok = userService.login(req);
         if (!ok) {
-            // Đây là logic nghiệp vụ (sai pass), trả về 401 luôn
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new AuthResponse(false, "Sai tên đăng nhập hoặc mật khẩu"));
         }
 
-        // 2. Tìm User (Nếu lỗi DB hoặc logic lạ -> GlobalHandler bắt 500)
+        // 2. Tìm đối tượng User từ Database
         User user = userService.findByUsername(req.getUsername())
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
 
-        // 3. Tạo Token
-        String access = jwtService.createAccessToken(user.getUsername());
+        // 3. Tạo Access Token (Sử dụng UserDetails fix)
+        String access = jwtService.createAccessToken(user);
+
+        // 4. Tạo Refresh Token
         String refreshRaw = jwtService.createRefreshTokenString();
         String refreshHash = TokenUtil.sha256Hex(refreshRaw);
         Instant expiresAt = Instant.now().plusMillis(REFRESH_TOKEN_EXPIRY);
 
-        // Revoke token cũ
+        // 5. Thu hồi (Revoke) các Refresh Token cũ của User này
         var existingTokens = refreshTokenRepository.findByUserIdAndRevokedFalse(user.getId());
         if (!existingTokens.isEmpty()) {
-            // 1. Cập nhật trạng thái revoked
             existingTokens.forEach(t -> t.setRevoked(true));
-            // 2. Tối ưu: Chỉ gọi saveAll một lần
             refreshTokenRepository.saveAll(existingTokens);
         }
-        // Save new token in database
+
+        // 6. Lưu Refresh Token mới vào database
         refreshTokenRepository.save(new RefreshToken(user.getId(), refreshHash, expiresAt));
 
-        //  Đóng gói dto và trả về client
         return ResponseEntity.ok(new LoginResponse(access, refreshRaw));
     }
 
@@ -81,7 +90,7 @@ public class AuthController {
         String refreshRaw = req.getRefreshToken();
         String h = TokenUtil.sha256Hex(refreshRaw);
 
-        // 1. Tìm token
+        // 1. Tìm token trong database
         Optional<RefreshToken> opt = refreshTokenRepository.findByTokenHashAndRevokedFalse(h);
         if (opt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -90,7 +99,7 @@ public class AuthController {
 
         RefreshToken token = opt.get();
 
-        // 2. Kiểm tra hết hạn
+        // 2. Kiểm tra thời hạn
         if (token.getExpiresAt().isBefore(Instant.now())) {
             token.setRevoked(true);
             refreshTokenRepository.save(token);
@@ -98,7 +107,7 @@ public class AuthController {
                     .body(new AuthResponse(false, "Refresh token đã hết hạn, vui lòng đăng nhập lại"));
         }
 
-        // 3. Rotation (Đổi cái cũ lấy cái mới)
+        // 3. Cơ chế Rotation (Hủy token cũ, tạo cái mới)
         token.setRevoked(true);
         refreshTokenRepository.save(token);
 
@@ -107,12 +116,40 @@ public class AuthController {
         Instant newExpires = Instant.now().plusMillis(REFRESH_TOKEN_EXPIRY);
         refreshTokenRepository.save(new RefreshToken(token.getUserId(), newRefreshHash, newExpires));
 
-        // 4. Tìm user để tạo Access Token
+        // 4. Tìm user để cấp Access Token mới
         User user = userRepository.findById(token.getUserId())
                 .orElseThrow(() -> new NoSuchElementException("Không tìm thấy người dùng sở hữu token này"));
 
-        String newAccess = jwtService.createAccessToken(user.getUsername());
+        // Tạo Access Token mới từ đối tượng User
+        String newAccess = jwtService.createAccessToken(user);
 
         return ResponseEntity.ok(new LoginResponse(newAccess, newRefreshRaw));
+    }
+
+    /**
+     * API duy nhất xử lý lấy thông tin người dùng hiện tại.
+     * Sử dụng @AuthenticationPrincipal để lấy trực tiếp User Entity từ SecurityContext.
+     */
+    @GetMapping("/me")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN', 'MANAGER')")
+    public ResponseEntity<?> getMe(@AuthenticationPrincipal User user) {
+        if (user == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Chưa đăng nhập"));
+        }
+
+        // Trả về thông tin chi tiết
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "username", user.getUsername(),
+                "email", user.getEmail(),
+                "fullName", user.getFullName() != null ? user.getFullName() : "",
+                "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
+                "address", user.getAddress() != null ? user.getAddress() : "",
+                "dateOfBirth", user.getDateOfBirth() != null ? user.getDateOfBirth() : "",
+                "sex", user.getSex() != null ? user.getSex() : "",
+                "roles", user.getAuthorities().stream()
+                        .map(auth -> auth.getAuthority())
+                        .collect(Collectors.toList())
+        ));
     }
 }

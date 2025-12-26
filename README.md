@@ -9,12 +9,12 @@
 
 | Thành phần | Phiên bản/Công nghệ                 | Mục đích |
 | :--- |:------------------------------------| :--- |
-| **Core** | Java 17, Spring Boot 3.2+           | Nền tảng phát triển ứng dụng Microservice/REST API. |
+| **Core** | Java 21, Spring Boot 3.4.x           | Nền tảng hiện đại, hỗ trợ Virtual Threads. |
 | **Security** | Spring Security 6, Java-JWT (Auth0) | Quản lý xác thực, ủy quyền và xử lý JWT. |
 | **API Docs** | SpringDoc OpenAPI 2.8.3             | Tự động tạo tài liệu API và giao diện Swagger UI. |
-| **Data** | MySQL, Spring Data JPA              | Lưu trữ dữ liệu và thao tác với Database. |
-| **Build Tool** | Maven                               | Quản lý dependencies và build project. |
-| **Tooling** | OpenSSL                             | Khởi tạo cặp khóa RSA. |
+| **Data** | MySQL 8.0, Spring Data JPA             | Lưu trữ và thao tác dữ liệu (ORM). |
+| **Migration** | Flyway           | Quản lý phiên bản Database (V1 -> V4). |
+| **Build Tool** | Lombok, Maven, OpenSSL | Tối ưu mã nguồn và quản lý phụ thuộc. |
 
 ---
 ## 📡 Tài Liệu API (Swagger UI)
@@ -22,7 +22,7 @@ Hệ thống tích hợp sẵn giao diện Swagger UI để hỗ trợ lập tr�
 - Đường dẫn truy cập: http://localhost:8080/swagger-ui/index.html
 - Định nghĩa API (JSON): http://localhost:8080/v3/api-docs
 ### Hướng dẫn kiểm thử API có bảo mật trên Swagger:
-1. Truy cập API POST /api/auth/login, thực hiện đăng nhập để nhận chuỗi accessToken.
+1. Truy cập API `POST /api/auth/login`, thực hiện đăng nhập để nhận chuỗi accessToken.
 2. Nhấn nút Authorize (biểu tượng ổ khóa màu xanh) ở phía trên cùng bên phải giao diện Swagger.
 3. Dán chuỗi Token vào ô Value (hệ thống đã cấu hình tự động thêm tiền tố "Bearer ").
 4. Nhấn Authorize -> Close.
@@ -31,7 +31,7 @@ Hệ thống tích hợp sẵn giao diện Swagger UI để hỗ trợ lập tr�
 
 ### 1. Yêu Cầu Tiên Quyết
 
-* **JDK 17** hoặc mới hơn.
+* **JDK 21** hoặc mới hơn.
 * **Maven** (3.6+).
 * **MySQL Server** đang hoạt động.
 * **Cặp khóa RSA** trong thư mục secrets/ (đã được cấu hình trong application.properties).
@@ -66,14 +66,14 @@ com.example.authdemo
 ├── common                 # BaseEntity, GlobalExceptionHandler, DTOs
 │
 └── module                 # NGHIỆP VỤ THEO TÍNH NĂNG
-├── auth               # API Login, Register, Refresh Token
-├── user               # Quản lý người dùng & Profile
-├── token              # Quản lý vòng đời Refresh Token
-└── product            # Quản lý Laptop & Brand
-├── controller     # Chứa các Swagger Annotations (@Operation, @Tag)
-├── service
-├── repository     # Specification Search
-└── model          # Entities (Laptop, Brand)
+    ├── auth               # DTOs & Controller cho Login/Register
+    ├── user               # Entity User (Duy nhất), Role, Repositories, Service
+    ├── token              # Quản lý Refresh Token & TokenUtil
+    └── product            # Quản lý Laptop, Brand & Specification Search
+        ├── controller     # Chứa các Swagger Annotations (@Operation, @Tag)
+        ├── service
+        ├── repository     # Specification Search
+        └── model          # Entities (Laptop, Brand)
 ````
 
 

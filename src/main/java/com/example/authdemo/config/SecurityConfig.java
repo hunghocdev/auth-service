@@ -3,18 +3,21 @@ package com.example.authdemo.config;
 import com.example.authdemo.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-// Import cho HttpSecurity
+
+// 1. IMPORT CHO CÁC ANNOTATION BẢO MẬT
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+
+// 2. IMPORT CHO CÁC THÀNH PHẦN CẤU HÌNH HTTP
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-// Import cho AbstractHttpConfigurer (để tắt CSRF)
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-// Import cho SessionCreationPolicy (Quản lý session)
 import org.springframework.security.config.http.SessionCreationPolicy;
-// Import cho SecurityFilterChain
 import org.springframework.security.web.SecurityFilterChain;
-// Import cho UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity   // Kích hoạt bảo mật Web
+@EnableMethodSecurity // Cho phép sử dụng @PreAuthorize trong Controller
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -26,12 +29,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // Tắt CSRF vì hệ thống dùng JWT (Stateless)
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        // 1. Cho phép các endpoint Auth của bạn
-                        .requestMatchers("/api/auth/**").permitAll()
 
-                        // 2. Mở khóa Swagger UI và API Docs
+                // Cấu hình phân quyền yêu cầu
+                .authorizeHttpRequests(auth -> auth
+                        // Cho phép các endpoint xác thực công khai
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
+
+                        // Mở khóa tài nguyên của Swagger UI và API Docs
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -39,10 +45,14 @@ public class SecurityConfig {
                                 "/webjars/**"
                         ).permitAll()
 
-                        // 3. Các request còn lại mới cần login
+                        // Tất cả các request còn lại (bao gồm /api/auth/me) phải được xác thực
                         .anyRequest().authenticated()
                 )
+
+                // Thiết lập cơ chế Stateless (không dùng Session)
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Thêm Filter kiểm tra JWT trước bước xác thực cơ bản
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

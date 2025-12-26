@@ -1,17 +1,9 @@
-<<<<<<< HEAD
--- Thêm cột auditing cho bảng laptops để lưu vết người tạo/sửa
-=======
--- Thêm cột auditing cho bảng laptops
->>>>>>> c7be2dfa18121082554757b7ba29548c44077b8f
+-- Thêm các cột auditing vào bảng laptops sau khi bảng đã có dữ liệu
 ALTER TABLE laptops
-ADD COLUMN created_at DATETIME(6),
-ADD COLUMN updated_at DATETIME(6),
-ADD COLUMN created_by VARCHAR(255),
+ADD COLUMN created_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6),
+ADD COLUMN updated_at DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+ADD COLUMN created_by VARCHAR(255) DEFAULT 'system',
 ADD COLUMN updated_by VARCHAR(255);
 
-<<<<<<< HEAD
--- Cập nhật dữ liệu cũ để tránh lỗi NULL
-=======
--- Cập nhật dữ liệu cũ (để không bị null)
->>>>>>> c7be2dfa18121082554757b7ba29548c44077b8f
-UPDATE laptops SET created_at = NOW(), created_by = 'system';
+-- Cập nhật dữ liệu auditing cho các bản ghi cũ từ V2
+UPDATE laptops SET created_at = NOW(), created_by = 'system' WHERE created_by IS NULL;
