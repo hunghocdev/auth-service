@@ -48,7 +48,10 @@
             <artifactId>bcprov-jdk15on</artifactId>
             <version>1.70</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
         <!-- password encoder (Đã xóa phần trùng lặp ở đây) -->
         <dependency>
             <groupId>org.springframework.security</groupId>
