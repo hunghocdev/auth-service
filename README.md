@@ -28,6 +28,7 @@ với các thuật toán đối xứng (HMAC).
 Hệ thống tích hợp sẵn giao diện Swagger UI để hỗ trợ lập trình viên Frontend và Tester.
 - Đường dẫn truy cập: http://localhost:8080/swagger-ui/index.html
 - Định nghĩa API (JSON): http://localhost:8080/v3/api-docs
+- Đường dẫn đăng nhập Auth google: http://localhost:8080/oauth2/authorization/google.
 ### Hướng dẫn kiểm thử API có bảo mật trên Swagger:
 1. Truy cập API `POST /api/auth/login`, thực hiện đăng nhập để nhận chuỗi **accessToken**.
 2. Nhấn nút **Authorize** (biểu tượng ổ khóa màu xanh) ở phía trên cùng bên phải giao diện Swagger.
