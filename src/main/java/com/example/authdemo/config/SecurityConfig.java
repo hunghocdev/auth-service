@@ -1,6 +1,10 @@
 package com.example.authdemo.config;
 
+import com.example.authdemo.module.user.repository.RoleRepository;
+import com.example.authdemo.module.user.repository.UserRepository;
 import com.example.authdemo.security.JwtAuthenticationFilter;
+import com.example.authdemo.security.JwtService;
+import com.example.authdemo.security.oauth2.CustomOAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,21 +19,19 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// IMPORT MỚI CHO OAUTH2
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-
 @Configuration
 @EnableWebSecurity   // Kích hoạt bảo mật Web
 @EnableMethodSecurity // Cho phép sử dụng @PreAuthorize trong Controller
 public class SecurityConfig {
-
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthFilter) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtAuthFilter,
+            CustomOAuth2SuccessHandler customOAuth2SuccessHandler) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.customOAuth2SuccessHandler = customOAuth2SuccessHandler;
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -53,39 +55,15 @@ public class SecurityConfig {
                         // Tất cả các request còn lại (bao gồm /api/auth/me) phải được xác thực
                         .anyRequest().authenticated()
                 )
+                // --- KÍCH HOẠT ĐĂNG NHẬP GOOGLE VỚI HANDLER RIÊNG ---
                 .oauth2Login(oauth2 -> oauth2
-                        .successHandler(oAuth2AuthenticationSuccessHandler())
+                        .successHandler(customOAuth2SuccessHandler)
                 )
-                // Thiết lập cơ chế Stateless (không dùng Session)
+                        // Thiết lập cơ chế Stateless (không dùng Session)
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
                 // Thêm Filter kiểm tra JWT trước bước xác thực cơ bản
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-    /**
-     * Xử lý sau khi người dùng đăng nhập Google thành công.
-     */
-    @Bean
-    public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
-        return (request, response, authentication) -> {
-            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-
-            // Lấy thông tin từ Google
-            String email = oAuth2User.getAttribute("email");
-            String name = oAuth2User.getAttribute("name");
-
-            System.out.println(">>> [OAUTH2 SUCCESS] Email: " + email + " | Name: " + name);
-
-            // TODO: Tại đây bạn sẽ gọi UserService để:
-            // 1. Kiểm tra User có trong DB chưa, nếu chưa thì tạo mới + gán ROLE_USER.
-            // 2. Tạo chuỗi JWT Token từ User này.
-
-            String mockToken = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."; // Thay bằng token thật của bạn
-
-            // Redirect về Swagger kèm theo Token để tiện kiểm thử
-            response.sendRedirect("/swagger-ui.html?token=" + mockToken);
-        };
     }
 }
