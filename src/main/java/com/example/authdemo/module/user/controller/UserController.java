@@ -17,7 +17,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal; // Import này rất quan trọng
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 
 @RestController
@@ -57,7 +60,7 @@ public class UserController {
             String newAccess = jwtService.createAccessToken(currentUser);
             String newRefreshRaw = jwtService.createRefreshTokenString();
             String newRefreshHash = TokenUtil.sha256Hex(newRefreshRaw);
-            Instant newExpires = Instant.now().plusMillis(2592000000L);
+            OffsetDateTime newExpires = Instant.now().plus(Duration.ofDays(30)).atOffset(ZoneOffset.UTC);
 
             // 3. Xử lý Refresh Token (Thu hồi cũ, lưu mới)
             var existingTokens = refreshTokenRepository.findByUserIdAndRevokedFalse(currentUser.getId());
