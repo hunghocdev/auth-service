@@ -1,8 +1,18 @@
 package com.example.authdemo.module.product.dto;
 
+import lombok.*;
 import java.util.List;
 
-// Response cho phân trang
+/**
+ * Generic wrapper for paginated responses.
+ * Provides metadata about the current page and total results.
+ * @param <T> The type of the content list.
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PageResponse<T> {
     private List<T> content;
     private int pageNo;
@@ -10,18 +20,10 @@ public class PageResponse<T> {
     private long totalElements;
     private int totalPages;
 
-    public PageResponse(List<T> content, int pageNo, int pageSize, long totalElements, int totalPages) {
-        this.content = content;
-        this.pageNo = pageNo;
-        this.pageSize = pageSize;
-        this.totalElements = totalElements;
-        this.totalPages = totalPages;
+    /**
+     * Utility flag to check if this is the last page.
+     */
+    public boolean isLast() {
+        return pageNo >= totalPages - 1;
     }
-
-    // Getters...
-    public List<T> getContent() { return content; }
-    public int getPageNo() { return pageNo; }
-    public int getPageSize() { return pageSize; }
-    public long getTotalElements() { return totalElements; }
-    public int getTotalPages() { return totalPages; }
 }

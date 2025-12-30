@@ -39,7 +39,7 @@ public class LaptopService {
         laptop.setPrice(req.getPrice());
         laptop.setDescription(req.getDescription());
         laptop.setBrand(brand);
-        laptop.setDeleted(false);
+        laptop.setIsDeleted(false);
 
         Laptop saved = laptopRepository.save(laptop);
         return toResponse(saved);
@@ -50,7 +50,7 @@ public class LaptopService {
         Laptop laptop = laptopRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Laptop not found"));
 
-        if (laptop.isDeleted()) {
+        if (laptop.getIsDeleted()) {
             throw new NoSuchElementException("Laptop has been deleted");
         }
         return toResponse(laptop);
@@ -125,7 +125,7 @@ public class LaptopService {
     public void softDelete(Long id) {
         Laptop laptop = laptopRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Laptop not found"));
-        laptop.setDeleted(true);
+        laptop.setIsDeleted(true);
         laptopRepository.save(laptop);
     }
 
@@ -135,7 +135,7 @@ public class LaptopService {
                 laptop.getName(),
                 laptop.getPrice(),
                 laptop.getDescription(),
-                laptop.getBrand() != null ? laptop.getBrand().getBrandName() : "Unknown"
+                laptop.getBrand() != null ? laptop.getBrand().getName() : "Unknown"
         );
     }
 }

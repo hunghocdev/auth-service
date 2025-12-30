@@ -1,25 +1,21 @@
 package com.example.authdemo.module.product.dto;
 
-// Response trả về client
+import lombok.*;
+import java.math.BigDecimal;
+
+/**
+ * DTO for returning laptop information to the client.
+ * Uses Lombok to minimize boilerplate and provide a fluent Builder API.
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LaptopResponse {
     private Long id;
     private String name;
-    private Double price;
+    private BigDecimal price;
     private String description;
-    private String brandName; // Chỉ trả về tên Brand thay vì cả object Brand
-
-    public LaptopResponse(Long id, String name, Double price, String description, String brandName) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.description = description;
-        this.brandName = brandName;
-    }
-
-    // Getters...
-    public Long getId() { return id; }
-    public String getName() { return name; }
-    public Double getPrice() { return price; }
-    public String getDescription() { return description; }
-    public String getBrandName() { return brandName; }
+    private String brandName;
 }

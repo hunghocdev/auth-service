@@ -73,7 +73,7 @@ public class UserService {
         if (req.getPhoneNumber() != null) user.setPhoneNumber(req.getPhoneNumber());
         if (req.getAddress() != null) user.setAddress(req.getAddress());
         if (req.getDateOfBirth() != null) user.setDateOfBirth(req.getDateOfBirth());
-        if (req.getSex() != null) user.setSex(req.getSex());
+        if (req.getGender() != null) user.setGender(req.getGender());
         // save in database
         userRepository.save(user);
     }

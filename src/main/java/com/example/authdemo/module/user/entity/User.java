@@ -10,38 +10,59 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 100)
     private String username;
 
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     @JsonIgnore
-    @Column(name = "password_hash")
+    @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
     private String fullName;
     private String phoneNumber;
+
+    @Column(columnDefinition = "TEXT")
     private String address;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    private String sex;
+    private String gender;
 
-    // QUAN TRỌNG: EAGER giúp nạp Role ngay khi tìm User
+    @Column(columnDefinition = "TEXT")
+    private String avatarUrl;
+
+    @Column(nullable = false)
+    private String status = "ACTIVE"; // ACTIVE / INACTIVE
+
+    @Column(name = "auth_provider", nullable = false)
+    private String authProvider = "LOCAL"; // LOCAL / GOOGLE
+
+    @Column(name = "created_at", updatable = false)
+    private OffsetDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_roles",
@@ -56,37 +77,33 @@ public class User implements UserDetails {
         this.passwordHash = passwordHash;
     }
 
-    public boolean verifyPassword(String rawPassword, PasswordEncoder passwordEncoder) {
-        if (rawPassword == null || this.passwordHash == null) return false;
-        return passwordEncoder.matches(rawPassword, this.passwordHash);
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // --- DIAGNOSTIC LOG (KIỂM TRA TẠI ĐÂY) ---
-        if (roles == null || roles.isEmpty()) {
-            System.out.println(">>> [SECURITY ALERT]: User [" + username + "] không có quyền nào trong Database (user_roles rỗng)!");
-            return Collections.emptyList();
-        }
+        if (roles == null || roles.isEmpty()) return Collections.emptyList();
 
-        List<SimpleGrantedAuthority> authorities = roles.stream()
-                .filter(role -> role.getName() != null)
+        return roles.stream()
                 .map(role -> {
-                    String name = role.getName().trim().toUpperCase();
+                    String name = role.getName().toUpperCase();
                     if (!name.startsWith("ROLE_")) name = "ROLE_" + name;
                     return new SimpleGrantedAuthority(name);
                 })
                 .collect(Collectors.toList());
-
-        // In ra để bạn đối chiếu với Token
-        System.out.println(">>> [AUTH SUCCESS]: User [" + username + "] đã nạp các quyền: " + authorities);
-        return authorities;
     }
 
     @Override @JsonIgnore public String getPassword() { return this.passwordHash; }
     @Override public String getUsername() { return this.username; }
+
+    @Override
+    public boolean isEnabled() {
+        return "ACTIVE".equalsIgnoreCase(this.status);
+    }
+
     @Override public boolean isAccountNonExpired() { return true; }
-    @Override public boolean isAccountNonLocked() { return true; }
+    @Override public boolean isAccountNonLocked() { return isEnabled(); }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return true; }
+
+    public boolean verifyPassword(String rawPassword, PasswordEncoder passwordEncoder) {
+        if (rawPassword == null || this.passwordHash == null) return false;
+        return passwordEncoder.matches(rawPassword, this.passwordHash);
+    }
 }
