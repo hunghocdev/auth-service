@@ -26,6 +26,10 @@
 # Maven / Gradle
 /target/
 build/
+*.class
+*.war
+*.ear
+*.jar
 
 # IDE output
 out/
@@ -40,6 +44,7 @@ bin/
 *.tmp
 *.bak
 logs/
+temp/
 
 # Node / Yarn (nếu có frontend)
 npm-debug.log
@@ -107,3 +112,19 @@ application-*.secret.yml
 # mvnw.cmd
 # .mvn/wrapper/maven-wrapper.jar
 # .mvn/wrapper/maven-wrapper.properties
+########################################
+# Các file chứa mật khẩu DB thực tế hoặc Key Google Auth ở máy local cần được bỏ qua.
+########################################
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+application-.secret.properties
+application-.secret.yml
+
+########################################
+# Operating System (Hệ điều hành)
+########################################
+.DS_Store
+Thumbs.db
+desktop.ini

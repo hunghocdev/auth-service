@@ -11,18 +11,18 @@ với các thuật toán đối xứng (HMAC).
 * **Interactive API Docs:** Tích hợp Swagger UI, cho phép xem cấu trúc API và kiểm thử trực tiếp trên giao diện web với nút Authorize hỗ trợ JWT.
 * **Database Storage:** Lưu trữ trạng thái người dùng (User) và trạng thái Refresh Token trong cơ sở dữ liệu MySQL thông qua Spring Data JPA.
 * **Advanced Search:** Tìm kiếm và lọc sản phẩm linh hoạt với JpaSpecificationExecutor.
+* **Database Migration:** Quản lý phiên bản cấu trúc dữ liệu tự động bằng Flyway (V1 -> V5).
 ---
 ## 🛠️ Tech Stack
 
-| Thành phần | Phiên bản/Công nghệ                 | Mục đích |
-| :--- |:------------------------------------| :--- |
-| **Core** | Java 21, Spring Boot 3.4.x           | Nền tảng hiện đại, hỗ trợ Virtual Threads. |
+| Thành phần | Phiên bản/Công nghệ                        | Mục đích |
+| :--- |:-------------------------------------------| :--- |
+| **Core** | Java 17, Spring Boot 3.4.x                 | Nền tảng hiện đại, hiệu năng cao. |
 | **Security** | Spring Security 6, Java-JWT, OAuth2 Client | Quản lý xác thực, ủy quyền RBAC và xử lý JWT/Social Login. |
-| **API Docs** | SpringDoc OpenAPI 2.8.3             | Tự động tạo tài liệu API và giao diện Swagger UI. |
-| **Data** | MySQL 8.0, Spring Data JPA             | Lưu trữ và thao tác dữ liệu (ORM). |
-| **Migration** | Flyway           | Quản lý phiên bản Database (V1 -> V4). |
-| **Build Tool** | Lombok, Maven, OpenSSL | Tối ưu mã nguồn và quản lý phụ thuộc. |
-
+| **Database** | PostgreSQL 15                              | Hệ quản trị dữ liệu quan hệ mạnh mẽ. |
+| **Migration** | Flyway                                     | Quản lý phiên bản Database. |
+| **Container** | Docker & Docker Compose                    | Đóng gói và triển khai đồng nhất mọi môi trường. |
+| **API Docs** | SpringDoc OpenAPI 2.8.3                    | Tự động tạo tài liệu API và giao diện Swagger UI. |
 ---
 ## 📡 Tài Liệu API (Swagger UI)
 Hệ thống tích hợp sẵn giao diện Swagger UI để hỗ trợ lập trình viên Frontend và Tester.
@@ -36,20 +36,31 @@ Hệ thống tích hợp sẵn giao diện Swagger UI để hỗ trợ lập tr�
 4. Nhấn **Authorize** -> **Close**.
 5. Giờ đây, bạn có thể gọi các API yêu cầu đăng nhập như `/api/auth/me` hoặc `/api/laptops`.
 ## ⚙️ Cài Đặt & Khởi Chạy
-
 ### 1. Yêu Cầu Tiên Quyết
-* **JDK 21** hoặc mới hơn.
+* **JDK 17** hoặc mới hơn.
 * **Maven** (3.6+).
 * **MySQL Server** đang hoạt động.
 * **Cặp khóa RSA** trong thư mục `secrets/` (đã được cấu hình trong `application.properties`).
-
 ### 2. Cấu Hình OAuth2 (Google)
 Bạn cần điền thông tin Client ID và Client Secret thực tế vào application.properties:
 ```
 spring.security.oauth2.client.registration.google.client-id=YOUR_CLIENT_ID
 spring.security.oauth2.client.registration.google.client-secret=YOUR_CLIENT_SECRET
 ```
-### 3. Khởi Chạy
+### 3. Triển khai nhanh với Docker (Khuyên dùng)
+Dự án được cấu hình sử dụng các cổng mặc định tiêu chuẩn để đảm bảo tính đồng nhất và dễ dàng kiểm thử.
+* **Bước 1:** Đảm bảo thư mục secrets/ có chứa jwt_private.pem và jwt_public.pem.
+* **Bước 2:** Chạy lệnh triển khai duy nhất:
+````
+    docker compose up --build -d
+````
+* **Bước 3:** Truy cập hệ thống:
+  - **Swagger UI:** http://localhost:8080/swagger-ui.html
+  - **Database (DBeaver):** Kết nối qua cổng mặc định **5432**.
+
+(Lưu ý: Nếu máy của bạn đang chạy sẵn một dịch vụ PostgreSQL khác ở cổng 5432, hãy tạm dừng dịch vụ đó trước khi chạy Docker để tránh xung đột).
+### 4. Chạy thủ công (Maven)
+Đảm bảo bạn đã cấu hình đúng thông tin kết nối Database trong `application.properties`.
 ````
 mvn clean spring-boot:run
 ````
@@ -69,7 +80,6 @@ com.example.authdemo
 ├── config                 # Cấu hình (Security, OpenApiConfig, Auditing)
 ├── security               # JWT Filter, JwtService, OAuth2 Handlers
 ├── common                 # BaseEntity, GlobalExceptionHandler, DTOs
-│
 └── module                 # NGHIỆP VỤ THEO TÍNH NĂNG
     ├── auth               # DTOs & Controller cho Login/Register
     ├── user               # Entity User (Duy nhất), Role, Repositories, Service
@@ -83,5 +93,6 @@ com.example.authdemo
 
 
 ### ⚠️ Lưu Ý Bảo Mật
-- Thư mục **secrets/** chứa khóa Private Key tuyệt đối không được đưa lên Git.
-- Trên môi trường Production, nên tắt Swagger UI bằng cấu hình: springdoc.api-docs.enabled=false.
+- Thư mục secrets/ chứa khóa Private Key tuyệt đối KHÔNG được commit lên Git (Đã cấu hình trong .gitignore).
+- Mật khẩu trong DB được mã hóa bằng BCrypt.
+- Trên môi trường Production, hãy tắt Swagger UI bằng cách cấu hình springdoc.api-docs.enabled=false.
