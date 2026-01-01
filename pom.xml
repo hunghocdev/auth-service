@@ -9,13 +9,12 @@
         <relativePath/>
     </parent>
     <groupId>com.example</groupId>
-    <artifactId>authdemo</artifactId>
+    <artifactId>SecureAuthService</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>authdemo</name>
-    <description>AuthDemo with PostgreSQL and Google OAuth2</description>
+    <name>SecureAuthService</name>
+    <description>Secure Authentication Service with PostgreSQL, JWT and Google OAuth2</description>
 
     <properties>
-        <!-- Downgraded from Java 21 to Java 17 as requested -->
         <java.version>17</java.version>
     </properties>
 
@@ -64,7 +63,6 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
-        <!-- Flyway PostgreSQL extension module -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
