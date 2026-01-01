@@ -1,6 +1,6 @@
-package com.example.authdemo.config;
+package com.example.secureauthservice.config;
 
-import com.example.authdemo.module.user.entity.User;
+import com.example.secureauthservice.module.user.entity.User;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
