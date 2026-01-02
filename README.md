@@ -91,39 +91,54 @@ src/main/java/com/example/secureauthservice
 | user   | User profile, roles, authorities |
 | product| Sample business domain (Laptop, Brand) demonstrating secured APIs & Specification Search |
 ***
-## ⚙️ Optional - Start with Docker (Recommended)
-Dự án sử dụng port mapping để tránh xung đột với các dịch vụ PostgreSQL hoặc Web server có sẵn trên máy host.
-### 🔌 Port Mapping (Host ↔ Container)
+## ⚙️ Run with Docker (Recommended)
+### 🧩 Prerequisites
+- Docker Desktop **v16+**
+- Docker Compose (bundled with Docker Desktop)
+- Git
+- OpenSSL or Git Bash (for RSA key generation)
 
+### 🔌 Port Mapping (Host ↔ Container)
+Dự án sử dụng port mapping để tránh xung đột với các dịch vụ PostgreSQL hoặc Web server có sẵn trên máy host.
+
+---
 | Service        | Container Port | Host Port | Purpose |
 |---------------|----------------|-----------|---------|
 | Auth API      | 8080           | 8081      | Tránh trùng port local |
 | PostgreSQL    | 5432           | 5433      | Không ảnh hưởng DB máy host |
 | Adminer       | 8080           | 8082      | DB inspection UI |
+---
 ### 1. Environment Configuration: 
-```
+```bash
    cp .env.example .env
 ```
-````
-# .env.example
+```.env
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=change_me
 APP_PORT=8081
 DB_PORT=5433
 GOOGLE_CLIENT_ID=your_client_id
 GOOGLE_CLIENT_SECRET=your_client_secret
-````
-### 2. Generate RSA Keys (Yêu cầu Git Bash hoặc OpenSSL):
+```
+### 2. Generate RSA Key Pair (Required)
+- JWT signing uses RS256 asymmetric encryption.
+- Keys must be generated before starting the containers.
 ```
 mkdir -p secrets
 openssl genrsa -out secrets/jwt_private.pem 2048
 openssl rsa -in secrets/jwt_private.pem -pubout -out secrets/jwt_public.pem
 ```
- *⚠️ `secrets/` must not be committed (already in `.gitignore`)*
+*⚠️ The `secrets/` directory is excluded via `.gitignore`
+Private keys must never be committed.*
 ### 3. Run with Docker Compose
 ````
    docker compose up --build -d
 ````
+Docker Compose will:
+- Build the Auth Service image 
+- Start PostgreSQL and Adminer 
+- Apply Flyway migrations automatically 
+- Expose services via mapped host ports
 ## Access Services
 | Service           | URL                                                |
 |:------------------|:---------------------------------------------------|
@@ -132,7 +147,7 @@ openssl rsa -in secrets/jwt_private.pem -pubout -out secrets/jwt_public.pem
 | API (JSON)        | http://localhost:8081/v3/api-docs                  |
 | Login Auth google | http://localhost:8081/oauth2/authorization/google. |
 ***
-## ⚙️ Optional – Manual Run
+## ⚙️ Run with Manual
 * This project is designed to be run with Docker.  
 * Manual setup is provided for development or debugging purposes only.
 ### 1. Requirements:
